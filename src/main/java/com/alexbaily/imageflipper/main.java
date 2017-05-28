@@ -14,37 +14,11 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 
 public class main {
-	
-	private static final String QUEUE_NAME = "image_queue";
-	
+		
 	public static void main(String[] args) {
 		
-		//Using a builder to return the queue, credentials are pulled from local machine.
-		AWSCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
-		AmazonSQS sqs = AmazonSQSClientBuilder.standard()
-											.withCredentials(credentialsProvider)
-											.withRegion(Regions.EU_WEST_1)
-											.build();
-		//Debugging: Checking to make sure I have return the right queue.
-		String queue_url = sqs.getQueueUrl(QUEUE_NAME).getQueueUrl();
-		System.out.println(queue_url);
-		
-		//Receive the messages via the ReceiveMessageResult class.
-		ReceiveMessageResult message = sqs.receiveMessage(queue_url);
-		//getMessages() returns a list of messages.
-		List<Message> messageList = message.getMessages();
-		
-		//for-each to loop through each message and see what they contain.
-		for(Message imageInfo : messageList) {
-			//Getting the contents of the message
-			String contents = imageInfo.getBody();
-			System.out.println(contents);
-			//Getting the message Handle for deletion.
-			String messageHandle =  imageInfo.getReceiptHandle();
-			sqs.deleteMessage(queue_url, messageHandle);
+			(new Thread(new Sqspoller())).start();
 
-		}
-		
 	}
 
 }
